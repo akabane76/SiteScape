@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./res/style.css">
+    <title>SiteScape</title>
+</head>
+
+<body>
+    <!-- sidebar content -->
+    <div class="sidebar">
+        <ul class="nav-links">
+            <li class="active">
+                <i class="bx bx-grid-alt"></i>
+                <span class="links_name">All Sites</span>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Page content -->
+    <div class="content">
+        <!-- all Sites -->
+        <div class="tab active">
+            <!-- Dynamic content will be loaded here -->
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Database connection settings
+        const dbConfig = {
+            host: 'localhost',
+            user: 'root',
+            password: '',
+            database: 'sitescape'
+        };
+
+        // Function to fetch data from the server using AJAX
+        function fetchData(sqlQuery, callback) {
+            const xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        const response = JSON.parse(xhr.responseText);
+                        callback(response);
+                    } else {
+                        console.error('Error fetching data:', xhr.status);
+                    }
+                }
+            };
+            xhr.open('POST', './res/dbcon2.php', true);
+            xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+            xhr.send(`sqlQuery=${encodeURIComponent(sqlQuery)}`);
+        }
+
+        // Function to render sites
+        function renderSites(sites, category) {
+            const tabContent = document.querySelector('.tab.active');
+            const categoryContainer = document.createElement('div');
+            categoryContainer.innerHTML = `<h2>${category}</h2><div class="sites-container"></div>`;
+            const sitesContainer = categoryContainer.querySelector('.sites-container');
+
+            sites.forEach(site => {
+                const siteElement = document.createElement('div');
+                siteElement.classList.add('site');
+                siteElement.innerHTML = `
+                    <img src="./images/${site.site_image}" alt="Site Icon">
+                    <p>${site.site_name}</p>
+                    <p><span>${site.site_company}</span></p>
+                `;
+                siteElement.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    window.open(site.site_link, '_blank');
+                });
+                sitesContainer.appendChild(siteElement);
+            });
+
+            tabContent.appendChild(categoryContainer);
+        }
+
+        // Function to initialize the sidebar
+function initSidebar(categories) {
+    const navLinks = document.querySelector('.nav-links');
+    categories.forEach(category => {
+        const listItem = document.createElement('li');
+        listItem.dataset.categoryId = category.category_id; // Attach category ID
+        listItem.innerHTML = `
+            <i class="bx bx-box"></i>
+            <span class="links_name">${category.category_name}</span>
+        `;
+        listItem.addEventListener('click', function () {
+            const categoryId = this.dataset.categoryId; // Retrieve category ID
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelector(`.tab.${categoryId}`).classList.add('active');
+        });
+        navLinks.appendChild(listItem);
+    });
+}
+
+
+        // Fetch categories and initialize sidebar
+        fetchData('SELECT DISTINCT category_name, category_id FROM categories', categories => {
+            initSidebar(categories);
+            categories.forEach(category => {
+                const categoryId = category.category_id;
+                fetchData(`SELECT * FROM sites WHERE category_id = ${categoryId}`, sites => {
+                    renderSites(sites, category.category_name);
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

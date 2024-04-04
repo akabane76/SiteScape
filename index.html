@@ -1,58 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="./res/style.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <title>SiteScape</title>
+    <title>sitescape</title>
 </head>
-
 <body>
+    <iframe src="https://sitescapes.000webhostapp.com/" height="100vh" width="100vh" title="Iframe Example"></iframe>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            overflow-y: hidden;
+        }
 
-    <div class="sidebar">
-        <ul class="nav-links">
-            <li class="active">
-                <i class="bx bx-grid-alt"></i>
-                <span class="links_name">All Sites</span>
-            </li>
-
-            <!-- Display categories here -->
-            <li class="">
-                <i class="bx bx-grid-alt"></i>
-                <span class="links_name" id="categories">Loading categories...</span>
-            </li>
-        </ul>
-    </div>
-
-    <script>
-        $(document).ready(function() {
-            // Make an AJAX request to retrieve categories using jQuery
-            $.ajax({
-                url: "./db-con.php",
-                type: "GET",
-                dataType: "json",
-                success: function(categories) {
-                    var categoriesElement = $("#categories");
-                    categoriesElement.empty(); // Clear previous content
-                    if (categories && categories.length > 0) {
-                        // Iterate over categories and append them to the element
-                        $.each(categories, function(index, category) {
-                            categoriesElement.append("<div>" + category.category_name + "</div>");
-                        });
-                    } else {
-                        categoriesElement.text("No categories found.");
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.log("Error: " + error);
-                    $("#categories").text("Failed to retrieve categories.");
-                }
-            });
-        });
-    </script>
-
+        iframe {
+            border: 0;
+            width: 100%;
+            height: 100vh;
+            overflow-y: hidden;
+        }
+    </style>
 </body>
-
 </html>
